@@ -95,6 +95,8 @@ def format_runtime_footer(
     context_tokens: int,
     context_length: Optional[int],
     cwd: Optional[str] = None,
+    provider: Optional[str] = None,
+    elapsed_seconds: Optional[float] = None,
     fields: Iterable[str] = _DEFAULT_FIELDS,
 ) -> str:
     """Render the footer line, or return "" if no fields have data.
@@ -108,6 +110,12 @@ def format_runtime_footer(
             m = _model_short(model)
             if m:
                 parts.append(m)
+        elif field == "provider":
+            if provider:
+                parts.append(provider)
+        elif field == "elapsed":
+            if elapsed_seconds is not None and elapsed_seconds >= 0:
+                parts.append(f"{elapsed_seconds:.1f}s")
         elif field == "context_pct":
             if context_length and context_length > 0 and context_tokens >= 0:
                 pct = max(0, min(100, round((context_tokens / context_length) * 100)))
@@ -131,6 +139,8 @@ def build_footer_line(
     context_tokens: int,
     context_length: Optional[int],
     cwd: Optional[str] = None,
+    provider: Optional[str] = None,
+    elapsed_seconds: Optional[float] = None,
 ) -> str:
     """Top-level entry point used by gateway/run.py.
 
@@ -146,5 +156,7 @@ def build_footer_line(
         context_tokens=context_tokens,
         context_length=context_length,
         cwd=cwd,
+        provider=provider,
+        elapsed_seconds=elapsed_seconds,
         fields=cfg.get("fields") or _DEFAULT_FIELDS,
     )
